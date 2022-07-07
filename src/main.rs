@@ -1,4 +1,7 @@
 use std::env;
+use std::fs::File;
+use std::path::Path;
+
 use chrono::prelude::*;
 
 fn main() {
@@ -6,13 +9,23 @@ fn main() {
     let migration_name = args.next();
 
     match migration_name {
-        Some(_s) => {
+        Some(s) => {
             let dt = Local::now();
 
-            let hour = format_time(dt.hour());
             let minute = format_time(dt.minute());
+            let hour = format_time(dt.hour());
+            let day = format_time(dt.day());
+            let month = format_time(dt.month());
+            let year = dt.year().to_string();
 
-            println!("{}{}", hour, minute);
+            let file_name = format!("{}_{}_{}_{}{}_{}.sql", year, month, day, hour, minute, s);
+
+            if Path::new(file_name.as_str()).exists() {
+                println!("File already exists.");
+            } else {
+                File::create(file_name).unwrap();
+                println!("File created successfully.")
+            }
         }
         None => {
             println!("Insert your migration name.");
